@@ -3,23 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <title>SIP-STOK GPM</title>
+
 <style>
-body{
-  font-family: Arial;
-  margin:0;
-  background:#f4f6f9;
-}
-header{
-  background:#2e7d32;
-  color:white;
-  padding:20px;
-  text-align:center;
-}
-iframe{
-  width:100%;
-  height:600px;
-  border:none;
-}
+body{font-family:Arial;margin:0;background:#f4f6f9;}
+header{background:#2e7d32;color:white;padding:20px;text-align:center;}
+.container{max-width:1100px;margin:40px auto;padding:20px;}
+.card{background:white;padding:25px;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+.info-box{background:#e8f5e9;padding:15px;border-radius:8px;margin-bottom:20px;font-weight:bold;}
+table{width:100%;border-collapse:collapse;margin-top:20px;}
+th{background:#2e7d32;color:white;padding:10px;}
+td{padding:8px;text-align:center;border-bottom:1px solid #ddd;}
+tr:hover{background:#f1f1f1;}
+.status-tersedia{background:#00e676;padding:4px 8px;border-radius:6px;font-weight:bold;}
+.status-menipis{background:#ffea00;padding:4px 8px;border-radius:6px;font-weight:bold;}
+.status-habis{background:#ff1744;color:white;padding:4px 8px;border-radius:6px;font-weight:bold;}
+footer{text-align:center;background:#2e7d32;color:white;padding:15px;margin-top:40px;}
 </style>
 </head>
 
@@ -27,10 +25,92 @@ iframe{
 
 <header>
 <h2>SIP-STOK GPM</h2>
+<p>Sistem Informasi Publikasi Stok Gerakan Pangan Murah</p>
 <p>Pemerintah Kabupaten Lahat</p>
 </header>
 
-<iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTviJa9SgFG_sLUgGDD0Ot4zc7Qe3peBMRzPUpDUWeXP3yTKjw4Kjut35gdhX7XzNBjvK80KkTGiewR/pubhtml"></iframe>
+<div class="container">
+<div class="card">
+
+<div class="info-box">
+📅 Tanggal: <span id="tanggal"></span><br>
+📍 Lokasi: <span id="lokasi"></span>
+</div>
+
+<h3>Informasi Stok Komoditas</h3>
+
+<table id="data-table">
+<thead>
+<tr>
+<th>No</th>
+<th>Komoditas</th>
+<th>Harga</th>
+<th>Stok Awal</th>
+<th>Terjual</th>
+<th>Sisa</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+</div>
+</div>
+
+<footer>
+© 2026 Dinas Ketahanan Pangan Kabupaten Lahat
+</footer>
+
+<script>
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTviJa9SgFG_sLUgGDD0Ot4zc7Qe3peBMRzPUpDUWeXP3yTKjw4Kjut35gdhX7XzNBjvK80KkTGiewR/pub?output=csv";
+
+fetch(sheetURL)
+.then(response => response.text())
+.then(data => {
+
+const rows = data.split("\n").slice(1);
+const tableBody = document.querySelector("#data-table tbody");
+
+if(rows.length > 0){
+const firstRow = rows[0].split(",");
+document.getElementById("tanggal").innerText = firstRow[0];
+document.getElementById("lokasi").innerText = firstRow[1];
+}
+
+rows.forEach((row, index) => {
+
+const cols = row.split(",");
+
+if(cols.length >= 8){
+
+let statusClass="";
+
+if(cols[7].toLowerCase().includes("tersedia"))
+statusClass="status-tersedia";
+else if(cols[7].toLowerCase().includes("menipis"))
+statusClass="status-menipis";
+else if(cols[7].toLowerCase().includes("habis"))
+statusClass="status-habis";
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+<td>${index+1}</td>
+<td>${cols[2]}</td>
+<td>Rp ${cols[3]}</td>
+<td>${cols[4]}</td>
+<td>${cols[5]}</td>
+<td>${cols[6]}</td>
+<td><span class="${statusClass}">${cols[7]}</span></td>
+`;
+
+tableBody.appendChild(tr);
+}
+
+});
+
+});
+</script>
 
 </body>
 </html>
